@@ -1,0 +1,9 @@
+syntax: regexp
+Debug/*
+Release/*
+ipch/*
+syntax: glob
+voltes.opensdf
+voltes.sdf
+voltes.ncb
+voltes.suo
