@@ -6,6 +6,11 @@ using std::cerr;
 using std::clog;
 using std::left;
 
+#include <iomanip>
+using std::setw;
+using std::setprecision;
+
+
 #include <fstream>
 using std::ifstream;
 using std::ofstream;
@@ -20,6 +25,7 @@ using std::calloc;
 #include <CPU clock.h>
 #include "count paths.h"
 
+
 // prototypes
 void intThrower(){throw 0;}
 
@@ -28,7 +34,7 @@ int main(int argc , char **argv)
 {
 	ifstream in;
 #pragma region open output stream
-	ofstream out("c:/output/stats improved 2.txt");
+	ofstream out("c:/output/stats linear.txt");
 	if(!out)
 	{
 		cerr << "cannot open output file!\n";
@@ -40,11 +46,12 @@ int main(int argc , char **argv)
 	uint startI,startJ,stopI,stopJ;
 	uint K;
 	uint tempI,tempJ;
-	uint *table;
-	uint *p;
+	Node *table;
+	Node *p;
 	uint distanceBase,distance;
 	std::string name("c:/input/benchmark/test");
 
+	double t;
 	for(int c = 1 ; c <= 4 ; ++c)
 	{
 		#pragma region open input stream
@@ -56,23 +63,23 @@ int main(int argc , char **argv)
 		}
 		in.clear();
 		#pragma endregion
-		double t = CPUclock::currentTime();
+		t = CPUclock::currentTime();
 		#pragma region read from input
 		in >> N >> M >> T >> startI >> startJ >> stopI >> stopJ >> K;	// read parameters from input.
 		#pragma endregion
 		#pragma region create the table
 		N += 2 , M += 2;	// adjust the number of rows and columns to accommodate the border.
-		table = new uint[N*M];	// allocate space for the table.
+		table = new Node[N*M];	// allocate space for the table.
 
 		distanceBase = 0;
 		for(tempI = stopI ; tempI > 0 ; --tempI)
 		{
 			distance = distanceBase;
 			for(tempJ = stopJ ; tempJ > 0 ; --tempJ)
-				*(table + M*tempI + tempJ) = distance++;
+				(table + M*tempI + tempJ)->dist = distance++;
 			distance = ++distanceBase;
 			for(tempJ = stopJ+1 ; tempJ <=  M-2 ; tempJ++)
-				*(table + M*tempI + tempJ) = distance++;
+				(table + M*tempI + tempJ)->dist = distance++;
 		} // end first outer for
 
 		distanceBase = 1;
@@ -80,17 +87,17 @@ int main(int argc , char **argv)
 		{
 			distance = distanceBase;
 			for(tempJ = stopJ ; tempJ > 0 ; --tempJ)
-				*(table + M*tempI + tempJ) = distance++;
+				(table + M*tempI + tempJ)->dist = distance++;
 			distance = ++distanceBase;
 			for(tempJ = stopJ+1 ; tempJ <=  M-2 ; tempJ++)
-				*(table + M*tempI + tempJ) = distance++;
+				(table + M*tempI + tempJ)->dist = distance++;
 		} // end second outer for
 		#pragma endregion
 		#pragma region read obstacles
 		while(K--)
 		{
 			in >> tempI >> tempJ;	// read obstacle coordinates.
-			*(table + M*tempI + tempJ) = UINT_MAX;	// register obstacle
+			(table + M*tempI + tempJ)->dist = UINT_MAX;	// register obstacle
 		} // end while
 		#pragma endregion
 		#pragma region generate border
@@ -98,24 +105,47 @@ int main(int argc , char **argv)
 		K = M;
 		p = table;
 		while(K--)
-			*p++ = UINT_MAX;
+			p++->dist = UINT_MAX;
 		K = N-1;
 		while(--K)
 		{
-			*p = UINT_MAX;
+			p->dist = UINT_MAX;
 			p += M-1;
-			*p++ = UINT_MAX;
+			p++->dist = UINT_MAX;
 		} // end while
 		K = M;
 		while(K--)
-			*p++ = UINT_MAX;
+			p++->dist = UINT_MAX;
 		#pragma endregion
-		// count paths
+		//t = CPUclock::currentTime() - t;
+		//cout << t << CPUclock::getUnit() << '\t';
+		//t = CPUclock::currentTime();
+		#pragma region attach lists to nodes
+		for(tempI = 1 ; tempI < N-1 ; ++tempI)
+			for(tempJ = 1 ; tempJ < M-1 ; ++tempJ)
+				if((table + M*tempI + tempJ)->dist != UINT_MAX)
+				{
+					(table + M*tempI + tempJ)->paths = new uint[T+1];
+					for(int c = 0 ; c <= T ; ++c)
+						(table + M*tempI + tempJ)->paths[c] = UINT_MAX;
+				} // if
+		#pragma endregion
+		//t = CPUclock::currentTime() - t;
+		//cout << t << CPUclock::getUnit() << '\t';
+		//t = CPUclock::currentTime();
+		#pragma region count paths
 		int temp = count_paths(table,M,startI,startJ,stopI,stopJ,T);
+		#pragma endregion
+		#pragma region free memory
+		for(tempI = 1 ; tempI < N-1 ; ++tempI)
+			for(tempJ = 1 ; tempJ < M-1 ; ++tempJ)
+				if((table + M*tempI + tempJ)->dist != UINT_MAX)
+					delete (table + M*tempI + tempJ)->paths;
+		#pragma endregion
 		t = CPUclock::currentTime() - t;
+		cout << t << CPUclock::getUnit() << '\n';
 
-		cout << temp << endl;
-		cout << t << CPUclock::getUnit() << endl;
+		cout << setw(60) << temp << " paths" << endl;
 		out << t << endl;
 		delete table;
 		in.close();
