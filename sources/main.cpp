@@ -116,9 +116,9 @@ int main()
 		* count paths *
 		**************/
 
-	uint temp = count_paths(table,M,startI,startJ,stopI,stopJ,T);	// count paths.
+	uint paths = count_paths(table,M,startI,startJ,stopI,stopJ,T);	// count paths.
 
-	printf("%u\n",temp);	// print result in a line by its own.
+	printf("%u\n",paths);	// print result in a line by its own.
 
 	free(table);	// free memory.
 
