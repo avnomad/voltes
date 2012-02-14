@@ -3,14 +3,9 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::cerr;
-using std::clog;
-using std::left;
 
 #include <fstream>
 using std::ifstream;
-using std::ofstream;
-using std::fstream;
-using std::ios;
 
 #include <cstdlib>
 using std::calloc;
@@ -29,15 +24,15 @@ void intThrower(){throw 0;}
 
 int main(int argc , char **argv)
 {
-#pragma region open input stream
-	ifstream in("c:/input/benchmark/test worse.txt");
+	// open input stream
+	ifstream in("../../../sample inputs/test1.txt");
 	if(!in)
 	{
 		cerr << "cannot open file!\n";
 		return 0;
 	}
-#pragma endregion
 
+	// variables to store the input
 	int N,M,T;
 	int startX,startY,stopX,stopY;
 	int K;
@@ -54,7 +49,7 @@ int main(int argc , char **argv)
 		in >> tempX >> tempY;	// read obstacle coordinates.
 		*(table + M*tempX + tempY) = true;	// register obstacle
 	} // end while
-	
+
 	// generate border
 	K = M;
 	p = table;
@@ -74,7 +69,6 @@ int main(int argc , char **argv)
 	// count paths
 	cout << count_paths(table,M,startX,startY,stopX,stopY,T) << endl;
 
-#pragma region initialize glut
 	// initialize glut
 	glutInit(&argc,argv);
 	glutInitWindowPosition(0,0);
@@ -92,7 +86,6 @@ int main(int argc , char **argv)
 		glutMainLoop();
 	}
 	catch(int){}
-#pragma endregion
 
 	TablePainter<bool> painter(gold,black,green,M);
 	// main loop
