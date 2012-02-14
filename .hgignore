@@ -7,3 +7,7 @@ voltes.opensdf
 voltes.sdf
 voltes.ncb
 voltes.suo
+builders/make/dependencies.txt
+builders/make/count paths.o
+builders/make/main.o
+builders/make/voltes.exe
