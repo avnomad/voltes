@@ -3,14 +3,11 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::cerr;
-using std::clog;
-using std::left;
 
 #include <fstream>
 using std::ifstream;
 using std::ofstream;
 using std::fstream;
-using std::ios;
 
 #include <cstdlib>
 using std::calloc;
@@ -18,33 +15,32 @@ using std::calloc;
 #include <CPU clock.h>
 #include "count paths.h"
 
-// prototypes
-void intThrower(){throw 0;}
-
 
 int main(int argc , char **argv)
 {
 	ifstream in;
-#pragma region open output stream
-	ofstream out("c:/output/stats simple.txt");
+
+	// open output stream
+	ofstream out("../stats.txt");
 	if(!out)
 	{
 		cerr << "cannot open output file!\n";
 		return 0;
 	}
-#pragma endregion
 
+	// variables to store the input
 	int N,M,T;
 	int startX,startY,stopX,stopY;
 	int K;
 	int tempX,tempY;
 	bool *table;
 	bool *p;
-	std::string name("c:/input/benchmark/test");
+	std::string name("../../../sample inputs/test");
 
+	// for each input file
 	for(int c = 1 ; c <= 4 ; ++c)
 	{
-		#pragma region open input stream
+		// open input stream
 		in.open((name+(char)('0'+c)+".txt").c_str());
 		if(!in)
 		{
@@ -52,20 +48,21 @@ int main(int argc , char **argv)
 			return 0;
 		}
 		in.clear();
-		#pragma endregion
+
+		// store current time
 		double t = CPUclock::currentTime();
-		#pragma region read from input
+
+		// read from input
 		in >> N >> M >> T >> startX >> startY >> stopX >> stopY >> K;	// read parameters from input.
 		N += 2 , M += 2;	// adjust the number of rows and columns to accommodate the border.
 
 		table = (bool*)calloc(N*M,sizeof(bool));	// allocate space for the table. initialize with zeros.
-		while(K--)
+		while(K--)	// for each obstacle
 		{
 			in >> tempX >> tempY;	// read obstacle coordinates.
 			*(table + M*tempX + tempY) = true;	// register obstacle
 		} // end while
-		#pragma endregion
-		#pragma region generate border
+
 		// generate border
 		K = M;
 		p = table;
@@ -81,13 +78,15 @@ int main(int argc , char **argv)
 		K = M;
 		while(K--)
 			*p++ = true;
-		#pragma endregion
 
 		// count paths
-		int temp = count_paths(table,M,startX,startY,stopX,stopY,T);
+		int paths = count_paths(table,M,startX,startY,stopX,stopY,T);
+
+		// calculate elapsed time
 		t = CPUclock::currentTime() - t;
 
-		cout << temp << endl;
+		// output results
+		cout << paths << endl;
 		cout << t << CPUclock::getUnit() << endl;
 		out << t << endl;
 		free(table);
