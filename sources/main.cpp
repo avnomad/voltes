@@ -15,7 +15,12 @@ using std::ios;
 #include <cstdlib>
 using std::calloc;
 
-#include <CPU clock.h>
+#include <gl/glut.h>
+#include <color.h>
+#include <color/glColor.h>
+#include <color/namings/double precision colors.h>
+
+#include <Graphics/TablePainter.h>
 #include "count paths.h"
 
 // prototypes
@@ -24,12 +29,11 @@ void intThrower(){throw 0;}
 
 int main(int argc , char **argv)
 {
-	ifstream in;
-#pragma region open output stream
-	ofstream out("c:/output/stats simple.txt");
-	if(!out)
+#pragma region open input stream
+	ifstream in("c:/input/benchmark/test worse.txt");
+	if(!in)
 	{
-		cerr << "cannot open output file!\n";
+		cerr << "cannot open file!\n";
 		return 0;
 	}
 #pragma endregion
@@ -40,61 +44,71 @@ int main(int argc , char **argv)
 	int tempX,tempY;
 	bool *table;
 	bool *p;
-	std::string name("c:/input/benchmark/test");
 
-	for(int c = 1 ; c <= 4 ; ++c)
+	in >> N >> M >> T >> startX >> startY >> stopX >> stopY >> K;	// read parameters from input.
+	N += 2 , M += 2;	// adjust the number of rows and columns to accommodate the border.
+
+	table = (bool*)calloc(N*M,sizeof(bool));	// allocate space for the table. initialize with zeros.
+	while(K--)
 	{
-		#pragma region open input stream
-		in.open((name+(char)('0'+c)+".txt").c_str());
-		if(!in)
-		{
-			cerr << "cannot open input file!\n";
-			return 0;
-		}
-		in.clear();
-		#pragma endregion
-		double t = CPUclock::currentTime();
-		#pragma region read from input
-		in >> N >> M >> T >> startX >> startY >> stopX >> stopY >> K;	// read parameters from input.
-		N += 2 , M += 2;	// adjust the number of rows and columns to accommodate the border.
+		in >> tempX >> tempY;	// read obstacle coordinates.
+		*(table + M*tempX + tempY) = true;	// register obstacle
+	} // end while
+	
+	// generate border
+	K = M;
+	p = table;
+	while(K--)
+		*p++ = true;
+	K = N-1;
+	while(--K)
+	{
+		*p = true;
+		p += M-1;
+		*p++ = true;
+	} // end while
+	K = M;
+	while(K--)
+		*p++ = true;
 
-		table = (bool*)calloc(N*M,sizeof(bool));	// allocate space for the table. initialize with zeros.
-		while(K--)
-		{
-			in >> tempX >> tempY;	// read obstacle coordinates.
-			*(table + M*tempX + tempY) = true;	// register obstacle
-		} // end while
-		#pragma endregion
-		#pragma region generate border
-		// generate border
-		K = M;
-		p = table;
-		while(K--)
-			*p++ = true;
-		K = N-1;
-		while(--K)
-		{
-			*p = true;
-			p += M-1;
-			*p++ = true;
-		} // end while
-		K = M;
-		while(K--)
-			*p++ = true;
-		#pragma endregion
+	// count paths
+	cout << count_paths(table,M,startX,startY,stopX,stopY,T) << endl;
 
-		// count paths
-		int temp = count_paths(table,M,startX,startY,stopX,stopY,T);
-		t = CPUclock::currentTime() - t;
+#pragma region initialize glut
+	// initialize glut
+	glutInit(&argc,argv);
+	glutInitWindowPosition(0,0);
+	glutInitWindowSize(10*M+20,10*N+20);
+	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutCreateWindow("pame voltes");
 
-		cout << temp << endl;
-		cout << t << CPUclock::getUnit() << endl;
-		out << t << endl;
-		free(table);
-		in.close();
-	} // end for
+	glMatrixMode(GL_PROJECTION);
+	gluOrtho2D(-10,10*M+10,-10*(int)N-10,10);	// set clipping window
+	glClearColor(0,0,0,0);	// set clear color.
 
+	glutDisplayFunc(intThrower);
+	try
+	{
+		glutMainLoop();
+	}
+	catch(int){}
+#pragma endregion
 
-	system("PAUSE");
+	TablePainter<bool> painter(gold,black,green,M);
+	// main loop
+	while(1)
+	{
+		glClear(GL_COLOR_BUFFER_BIT);	// clear buffer
+
+		painter.display(table,table+N*M);
+		glColor(lime);
+		glRecti(10*startY,-10*startX,10*startY+10,-10*startX-10);
+		glColor(red);
+		glRecti(10*stopY,-10*stopX,10*stopY+10,-10*stopX-10);
+
+		glutSwapBuffers();
+	} // end while
+
+	free(table);
 	return 0;
 } // end function main
