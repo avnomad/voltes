@@ -15,7 +15,7 @@ uint count_paths(bool *map , uint columns , uint pi , uint pj , uint ti , uint t
 	if(*(map+pi*columns+pj))
 		return 0;
 
-	unsigned int D = abs(pi-ti) + abs(pj-tj);
+	unsigned int D = abs((int)(pi-ti)) + abs((int)(pj-tj));
 	if(D > steps || (steps-D) & 0x1)
 		return 0;
 	
@@ -33,19 +33,19 @@ uint count_paths(bool *map , uint columns , uint pi , uint pj , uint ti , uint t
 		--steps;
 
 		temp = pi+1;
-		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+		if(!*(map+temp*columns+pj) && steps >= (uint)(abs((int)(temp-ti)) + abs((int)(pj-tj))))
 			search4way(temp,pj,steps);
 
 		temp = pi-1;
-		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+		if(!*(map+temp*columns+pj) && steps >= (uint)(abs((int)(temp-ti)) + abs((int)(pj-tj))))
 			search4way(temp,pj,steps);
 
 		temp = pj+1;
-		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+		if(!*(map+pi*columns+temp) && steps >= (uint)(abs((int)(pi-ti)) + abs((int)(temp-tj))))
 			search4way(pi,temp,steps);
 
 		temp = pj-1;
-		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+		if(!*(map+pi*columns+temp) && steps >= (uint)(abs((int)(pi-ti)) + abs((int)(temp-tj))))
 			search4way(pi,temp,steps);
 	} // end if
 	else if(pi == ti && pj == tj)
@@ -62,19 +62,19 @@ static void search4way(uint pi , uint pj , uint steps)															// search4w
 		--steps;
 
 		temp = pi+1;
-		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+		if(!*(map+temp*columns+pj) && steps >= (uint)(abs((int)(temp-ti)) + abs((int)(pj-tj))))
 			search4way(temp,pj,steps);
 
 		temp = pi-1;
-		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+		if(!*(map+temp*columns+pj) && steps >= (uint)(abs((int)(temp-ti)) + abs((int)(pj-tj))))
 			search4way(temp,pj,steps);
 
 		temp = pj+1;
-		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+		if(!*(map+pi*columns+temp) && steps >= (uint)(abs((int)(pi-ti)) + abs((int)(temp-tj))))
 			search4way(pi,temp,steps);
 
 		temp = pj-1;
-		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+		if(!*(map+pi*columns+temp) && steps >= (uint)(abs((int)(pi-ti)) + abs((int)(temp-tj))))
 			search4way(pi,temp,steps);
 	} // end if
 	else if(pi == ti && pj == tj)
