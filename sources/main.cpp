@@ -18,26 +18,57 @@ using std::calloc;
 #include <Graphics/TablePainter.h>
 #include "count paths.h"
 
-// prototypes
-void intThrower(){throw 0;}
+// variables shared by main and display
+int N,M,T;
+int startX,startY,stopX,stopY;
+bool *table;
+TablePainter<bool> *painter;
+
+
+void display()
+{
+	glClear(GL_COLOR_BUFFER_BIT);
+
+	painter->display(table,table+N*M);
+	glColor(lime);
+	glRecti(10*startY,-10*startX,10*startY+10,-10*startX-10);
+	glColor(red);
+	glRecti(10*stopY,-10*stopX,10*stopY+10,-10*stopX-10);
+
+	glutPostRedisplay();
+	glutSwapBuffers();
+} // end function display
+
+
+void keyboard(unsigned char key, int x, int y)
+{
+	switch(key)
+	{
+	case 27:	// escape key
+		exit(0);
+	} // end switch
+} // end function keyboard
+
+
+void reshape(int w, int h)
+{
+	glViewport(0,0,w,h);
+} // end function reshape
 
 
 int main(int argc , char **argv)
 {
 	// open input stream
-	ifstream in("../../../sample inputs/test1.txt");
+	ifstream in("../../../sample inputs/test2.txt");
 	if(!in)
 	{
-		cerr << "cannot open file!\n";
+		cerr << "cannot open input file!\n";
 		return 0;
 	}
 
 	// variables to store the input
-	int N,M,T;
-	int startX,startY,stopX,stopY;
 	int K;
 	int tempX,tempY;
-	bool *table;
 	bool *p;
 
 	in >> N >> M >> T >> startX >> startY >> stopX >> stopY >> K;	// read parameters from input.
@@ -69,39 +100,28 @@ int main(int argc , char **argv)
 	// count paths
 	cout << count_paths(table,M,startX,startY,stopX,stopY,T) << endl;
 
-	// initialize glut
+	// glut initialization
 	glutInit(&argc,argv);
-	glutInitWindowPosition(0,0);
+	glutInitDisplayMode(GLUT_RGBA | GLUT_DOUBLE);
 	glutInitWindowSize(10*M+20,10*N+20);
-	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA);
+	glutInitWindowPosition(0,0);
 	glutCreateWindow("pame voltes");
 
+	// OpenGL initialization
 	glMatrixMode(GL_PROJECTION);
 	gluOrtho2D(-10,10*M+10,-10*(int)N-10,10);	// set clipping window
-	glClearColor(0,0,0,0);	// set clear color.
 
-	glutDisplayFunc(intThrower);
-	try
-	{
-		glutMainLoop();
-	}
-	catch(int){}
+	// application initialization
+	painter = new TablePainter<bool>(gold,black,green,M);
 
-	TablePainter<bool> painter(gold,black,green,M);
-	// main loop
-	while(1)
-	{
-		glClear(GL_COLOR_BUFFER_BIT);	// clear buffer
+	// event handling initialization
+	glutDisplayFunc(display);
+	glutKeyboardFunc(keyboard);
+	glutReshapeFunc(reshape);
+	glutMainLoop();
 
-		painter.display(table,table+N*M);
-		glColor(lime);
-		glRecti(10*startY,-10*startX,10*startY+10,-10*startX-10);
-		glColor(red);
-		glRecti(10*stopY,-10*stopX,10*stopY+10,-10*stopX-10);
-
-		glutSwapBuffers();
-	} // end while
-
+	// clean-up
+	delete painter;
 	free(table);
 	return 0;
 } // end function main
