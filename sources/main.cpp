@@ -7,6 +7,7 @@
 
 int main(int argc , char **argv)
 {
+	// variables to store the input
 	uint N,M,T;
 	uint startI,startJ,stopI,stopJ;
 	uint K;
@@ -27,6 +28,7 @@ int main(int argc , char **argv)
 	D = T+1;
 	table = (uint*)malloc(N*M*D*sizeof(uint));	/* allocate space for the table. */
 
+	// initialize distances from destination
 	tempI = M*D;
 	tempJ = tempI-D;
 
@@ -60,7 +62,7 @@ int main(int argc , char **argv)
 	/* read obstacles */
 	/******************/
 
-	while(K--)
+	while(K--)	// for each obstacle
 	{
 		scanf("%u%u",&tempI,&tempJ);	// read obstacle coordinates.
 		*(table + (M*tempI + tempJ)*D) = UINT_MAX;	// register obstacle
@@ -115,9 +117,9 @@ int main(int argc , char **argv)
 	/* count paths */
 	/***************/
 
-	uint temp = count_paths(table,M,startI,startJ,stopI,stopJ,T);
+	uint paths = count_paths(table,M,startI,startJ,stopI,stopJ,T);
 
-	printf("%u\n",temp);	// print result in a line by it's own.
+	printf("%u\n",paths);	// print result in a line by it's own.
 
 	free(table);	// free memory
 
