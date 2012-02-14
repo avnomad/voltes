@@ -78,7 +78,9 @@ uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint t
 		//*(current+0) = 1;
 		//return *(current+0);
 		return 1;
-	} // end else
+	} // end else if
+	else
+		return 0;
 } // end function count_paths
 
 

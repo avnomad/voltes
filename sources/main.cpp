@@ -34,7 +34,7 @@ int main(int argc , char **argv)
 {
 	ifstream in;
 #pragma region open output stream
-	ofstream out("c:/output/stats linear no new.txt");
+	ofstream out("c:/output/stats unreadable.txt");
 	if(!out)
 	{
 		cerr << "cannot open output file!\n";
@@ -47,7 +47,7 @@ int main(int argc , char **argv)
 	uint K;
 	uint tempI,tempJ;
 	uint *table;
-	uint *p;
+	uint *p,*q,*sp,*sq;
 	uint distanceBase,distance;
 	std::string name("c:/input/benchmark/test");
 	uint D;
@@ -73,27 +73,33 @@ int main(int argc , char **argv)
 		D = T+1;
 		table = new uint[N*M*D];	// allocate space for the table.
 
+		tempI = M*D;
+		tempJ = tempI-D;
+
 		distanceBase = 0;
-		for(tempI = stopI ; tempI > 0 ; --tempI)
+		for(p = table+tempI*stopI ; p > table ; p -= tempI)
 		{
 			distance = distanceBase;
-			for(tempJ = stopJ ; tempJ > 0 ; --tempJ)
-				*(table + (M*tempI + tempJ)*D) = distance++;
+			for(q = p + stopJ*D ; q > p ; q -= D)
+				*q = distance++;
 			distance = ++distanceBase;
-			for(tempJ = stopJ+1 ; tempJ <=  M-2 ; tempJ++)
-				*(table + (M*tempI + tempJ)*D) = distance++;
-		} // end first outer for
+			sq = p + tempJ;
+			for(q = p + stopJ*D+D ; q < sq ; q += D)
+				*q = distance++;
+		} // end p for
 
 		distanceBase = 1;
-		for(tempI = stopI+1 ; tempI <=  N-2 ; ++tempI)
+		sp = table+(N-1)*tempI;
+		for(p = table+tempI*stopI+tempI ; p < sp ; p += tempI)
 		{
 			distance = distanceBase;
-			for(tempJ = stopJ ; tempJ > 0 ; --tempJ)
-				*(table + (M*tempI + tempJ)*D) = distance++;
+			for(q = p + stopJ*D ; q > p ; q -= D)
+				*q = distance++;
 			distance = ++distanceBase;
-			for(tempJ = stopJ+1 ; tempJ <=  M-2 ; tempJ++)
-				*(table + (M*tempI + tempJ)*D) = distance++;
-		} // end second outer for
+			sq = p + tempJ;
+			for(q = p + stopJ*D+D ; q < sq ; q += D)
+				*q = distance++;
+		} // end p for
 		#pragma endregion
 		#pragma region read obstacles
 		while(K--)
@@ -130,17 +136,23 @@ int main(int argc , char **argv)
 		cout << t << CPUclock::getUnit() << '\t';
 		t = CPUclock::currentTime();*/
 		#pragma region attach lists to nodes
-		for(tempI = 1 ; tempI < N-1 ; ++tempI)
-			for(tempJ = 1 ; tempJ < M-1 ; ++tempJ)
-				if(*(table + (M*tempI + tempJ)*D) != UINT_MAX)
-					for(int c = 1 ; c <= T ; ++c)
-						*(table + (M*tempI + tempJ)*D + c) = UINT_MAX;
+		tempI = M*D;
+		tempJ = tempI-D;
+		sp = table+(N-1)*tempI;
+		for(p = table + tempI ; p < sp ; p += tempI)
+		{
+			sq = p + tempJ;
+			for(q = p + D ; q < sq ; q += D)
+				if(*q != UINT_MAX)
+					for(uint c = 1 ; c <= T ; ++c)
+						*(q + c) = UINT_MAX;
+		} // end p for
 		#pragma endregion
 		/*t = CPUclock::currentTime() - t;
 		cout << t << CPUclock::getUnit() << '\t';
 		t = CPUclock::currentTime();*/
 		#pragma region count paths
-		int temp = count_paths(table,M,startI,startJ,stopI,stopJ,T);
+		uint temp = count_paths(table,M,startI,startJ,stopI,stopJ,T);
 		#pragma endregion
 		t = CPUclock::currentTime() - t;
 		cout << t << CPUclock::getUnit() << '\n';
