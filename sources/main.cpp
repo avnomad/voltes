@@ -7,8 +7,7 @@ using std::cerr;
 #include <fstream>
 using std::ifstream;
 
-#include <cstdlib>
-using std::calloc;
+#include <climits>
 
 #include <gl/glut.h>
 #include <color.h>
@@ -19,21 +18,62 @@ using std::calloc;
 #include "count paths.h"
 
 // variables shared by main and display
-int N,M,T;
-int startX,startY,stopX,stopY;
-bool *table;
+uint N,M,T;
+uint startI,startJ,stopI,stopJ;
+uint *table;
+uint D;
 TablePainter<bool> *painter;
+
+// this class is specific to this program!
+// adapts a standard pointer that points to a memory block formated according to 
+// this program's format to an iterator suitable for use with TablePainter::display
+template<typename T>
+class TableIterator	// does not assume ownership of pointed object!
+{
+	T *iPointer;
+	int iElementsToProgress;
+
+public:
+
+	TableIterator(T *pointer, int elementsToProgress)
+		:iPointer(pointer),iElementsToProgress(elementsToProgress)
+	{
+		// empty body
+	} // end TableIterator constructor
+
+	bool operator*() const	// <-- !!!
+	{
+		return *iPointer == UINT_MAX;
+	} // end function operator*
+
+	bool operator==(const TableIterator &right)
+	{
+		return iPointer == right.iPointer;
+	} // end function operator==
+
+	bool operator!=(const TableIterator &right)
+	{
+		return !(*this==right);
+	} // end function operator!=
+
+	TableIterator &operator++()
+	{
+		iPointer += iElementsToProgress;
+		return *this;
+	} // end function operator++
+
+}; // end class TableIterator
 
 
 void display()
 {
 	glClear(GL_COLOR_BUFFER_BIT);
 
-	painter->display(table,table+N*M);
+	painter->display(TableIterator<uint>(table,D),TableIterator<uint>(table+N*M*D,D));
 	glColor(lime);
-	glRecti(10*startY,-10*startX,10*startY+10,-10*startX-10);
+	glRecti(10*startJ,-10*startI,10*startJ+10,-10*startI-10);
 	glColor(red);
-	glRecti(10*stopY,-10*stopX,10*stopY+10,-10*stopX-10);
+	glRecti(10*stopJ,-10*stopI,10*stopJ+10,-10*stopI-10);
 
 	glutPostRedisplay();
 	glutSwapBuffers();
@@ -67,38 +107,57 @@ int main(int argc , char **argv)
 	}
 
 	// variables to store the input
-	int K;
-	int tempX,tempY;
-	bool *p;
+	uint K;
+	uint tempI,tempJ;
+	uint *p,*q,*sp,*sq;
+	uint distanceBase,distance;
 
-	in >> N >> M >> T >> startX >> startY >> stopX >> stopY >> K;	// read parameters from input.
+	// read from input
+	in >> N >> M >> T >> startI >> startJ >> stopI >> stopJ >> K;	// read parameters from input.
+	// create the table
 	N += 2 , M += 2;	// adjust the number of rows and columns to accommodate the border.
+	D = T+1;
+	table = new uint[N*M*D];	// allocate space for the table.
+	memset(table,UINT_MAX,N*M*D*sizeof(uint));	// fill the table with a special value.
 
-	table = (bool*)calloc(N*M,sizeof(bool));	// allocate space for the table. initialize with zeros.
-	while(K--)
+		// initialize distances to destination
+	tempI = M*D;
+	tempJ = tempI-D;
+
+	distanceBase = 0;
+	for(p = table+tempI*stopI ; p > table ; p -= tempI)
 	{
-		in >> tempX >> tempY;	// read obstacle coordinates.
-		*(table + M*tempX + tempY) = true;	// register obstacle
+		distance = distanceBase;
+		for(q = p + stopJ*D ; q > p ; q -= D)
+			*q = distance++;
+		distance = ++distanceBase;
+		sq = p + tempJ;
+		for(q = p + stopJ*D+D ; q < sq ; q += D)
+			*q = distance++;
+	} // end p for
+
+	distanceBase = 1;
+	sp = table+(N-1)*tempI;
+	for(p = table+tempI*stopI+tempI ; p < sp ; p += tempI)
+	{
+		distance = distanceBase;
+		for(q = p + stopJ*D ; q > p ; q -= D)
+			*q = distance++;
+		distance = ++distanceBase;
+		sq = p + tempJ;
+		for(q = p + stopJ*D+D ; q < sq ; q += D)
+			*q = distance++;
+	} // end p for
+
+	while(K--)	// for each obstacle
+	{
+		in >> tempI >> tempJ;	// read obstacle coordinates.
+		*(table + (M*tempI + tempJ)*D) = UINT_MAX;	// register obstacle
 	} // end while
 
-	// generate border
-	K = M;
-	p = table;
-	while(K--)
-		*p++ = true;
-	K = N-1;
-	while(--K)
-	{
-		*p = true;
-		p += M-1;
-		*p++ = true;
-	} // end while
-	K = M;
-	while(K--)
-		*p++ = true;
 
 	// count paths
-	cout << count_paths(table,M,startX,startY,stopX,stopY,T) << endl;
+	cout << count_paths(table,M,startI,startJ,stopI,stopJ,T) << endl;
 
 	// glut initialization
 	glutInit(&argc,argv);
