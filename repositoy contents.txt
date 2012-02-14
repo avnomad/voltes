@@ -1,0 +1,15 @@
+This repository hosts a cluster of 16 closely related projects, each in its own 
+branch. One should be able to checkout and build any of them.
+
+They were all created during May 2009 and related to an exercise a professor 
+(Konstantinos F. Sagonas) set on his programming languages course and I heard 
+from a fellow student.
+
+1 visualizes the input using OpenGL to assist debugging.
+13 implement different algorithms/(hand) optimizations and solve multiple 
+    instances of the problem noting their execution time to assess the 
+    effectiveness of these algorithms/optimizations.
+2 conform to the input/output requirements of the exercise and were e-mailed to 
+    the professor.
+
+TODO: add more (better?) information
