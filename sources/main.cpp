@@ -26,7 +26,7 @@ int main(int argc , char **argv)
 {
 	ifstream in;
 #pragma region open output stream
-	ofstream out("c:/output/stats improved.txt");
+	ofstream out("c:/output/stats leaf cut.txt");
 	if(!out)
 	{
 		cerr << "cannot open output file!\n";

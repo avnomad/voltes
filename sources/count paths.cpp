@@ -29,11 +29,24 @@ uint count_paths(bool *map , uint columns , uint pi , uint pj , uint ti , uint t
 	// commence search
 	if(steps)
 	{
+		uint temp;
 		--steps;
-		search4way(pi+1,pj,steps);
-		search4way(pi,pj+1,steps);
-		search4way(pi-1,pj,steps);
-		search4way(pi,pj-1,steps);
+
+		temp = pi+1;
+		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+			search4way(temp,pj,steps);
+
+		temp = pi-1;
+		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+			search4way(temp,pj,steps);
+
+		temp = pj+1;
+		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+			search4way(pi,temp,steps);
+
+		temp = pj-1;
+		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+			search4way(pi,temp,steps);
 	} // end if
 	else if(pi == ti && pj == tj)
 		++paths;
@@ -43,15 +56,26 @@ uint count_paths(bool *map , uint columns , uint pi , uint pj , uint ti , uint t
 
 static void search4way(uint pi , uint pj , uint steps)															// search4way
 {
-	if(*(map+pi*columns+pj) || steps < abs(pi-ti) + abs(pj-tj))
-		return;
 	if(steps)
 	{
+		uint temp;
 		--steps;
-		search4way(pi+1,pj,steps);
-		search4way(pi,pj+1,steps);
-		search4way(pi-1,pj,steps);
-		search4way(pi,pj-1,steps);
+
+		temp = pi+1;
+		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+			search4way(temp,pj,steps);
+
+		temp = pi-1;
+		if(!*(map+temp*columns+pj) && steps >= abs(temp-ti) + abs(pj-tj))
+			search4way(temp,pj,steps);
+
+		temp = pj+1;
+		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+			search4way(pi,temp,steps);
+
+		temp = pj-1;
+		if(!*(map+pi*columns+temp) && steps >= abs(pi-ti) + abs(temp-tj))
+			search4way(pi,temp,steps);
 	} // end if
 	else if(pi == ti && pj == tj)
 		++paths;
