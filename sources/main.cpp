@@ -3,14 +3,11 @@ using std::cout;
 using std::cin;
 using std::endl;
 using std::cerr;
-using std::clog;
-using std::left;
 
 #include <fstream>
 using std::ifstream;
 using std::ofstream;
 using std::fstream;
-using std::ios;
 
 #include <cstdlib>
 using std::calloc;
@@ -18,15 +15,12 @@ using std::calloc;
 #include <CPU clock.h>
 #include "count paths.h"
 
-// prototypes
-void intThrower(){throw 0;}
-
 
 int main(int argc , char **argv)
 {
 	ifstream in;
 #pragma region open output stream
-	ofstream out("c:/output/stats dummy.txt");
+	ofstream out("../stats.txt");
 	if(!out)
 	{
 		cerr << "cannot open output file!\n";
@@ -40,7 +34,7 @@ int main(int argc , char **argv)
 	int tempX,tempY;
 	bool *table;
 	bool *p;
-	std::string name("c:/input/benchmark/test");
+	std::string name("../../../sample inputs/test");
 
 	for(int c = 1 ; c <= 4 ; ++c)
 	{

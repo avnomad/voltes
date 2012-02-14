@@ -2,12 +2,10 @@
 #include "cstdlib"
 
 
-static uint search4way(uint pi , uint pj , uint steps);															// search4way
-
 uint count_paths(bool *map , uint columns , uint pi , uint pj , uint ti , uint tj , uint steps)					// count_paths
 {
 	// look for trivial instance of the problem
-	if(*(map+pi*columns+pj) || steps < abs(pi-ti) + abs(pj-tj))
+	if(*(map+pi*columns+pj) || steps < abs((int)(pi-ti)) + abs((int)(pj-tj)))
 		return 0;
 	
 	// commence search
