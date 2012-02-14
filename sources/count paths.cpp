@@ -1,5 +1,5 @@
 #include "count paths.h"
-#include "cstdlib"
+#include "stdlib.h"
 
 // shared variables
 static uint *target;
@@ -10,8 +10,8 @@ static void search4way(uint *current , uint steps);															// search4way
 
 uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint tj , uint steps)					// count_paths
 {	/* now steps must be less than UINT_MAX which is of course no problem almost all cases. */
-	// look for trivial instance of the problem
-	::D = steps+1;
+	/* look for trivial instance of the problem */
+	D = steps+1;
 	uint *current = map+(pi*columns+pj)*D;
 	uint dist = *current;
 	if(dist > steps || (steps-dist) & 0x1)
