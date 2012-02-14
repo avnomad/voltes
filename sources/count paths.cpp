@@ -3,7 +3,7 @@
 
 // shared variables
 static uint *target;
-static uint columns;
+static uint column;
 static uint D;	// depth, or something :)
 
 static void search4way(uint *current , uint steps);															// search4way
@@ -19,7 +19,7 @@ uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint t
 	
 	// initialize global variables
 	::target = map+(ti*columns+tj)*D;
-	::columns = columns;
+	::column = columns*::D;
 
 	// commence search
 	if(steps)
@@ -47,7 +47,7 @@ uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint t
 				*(current+steps+1) += *(temp+steps);
 			} // end if
 
-			temp = current-columns*D;
+			temp = current-column;
 			if(*temp <= steps)
 			{
 				if(*(temp+steps) == UINT_MAX)
@@ -55,7 +55,7 @@ uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint t
 				*(current+steps+1) += *(temp+steps);
 			} // end if
 
-			temp = current+columns*D;
+			temp = current+column;
 			if(*temp <= steps)
 			{
 				if(*(temp+steps) == UINT_MAX)
@@ -66,7 +66,7 @@ uint count_paths(uint *map , uint columns , uint pi , uint pj , uint ti , uint t
 		else
 		{
 			if(current-D == target || current+D == target || // there is only 1 target so only
-				current-columns*D == target || current+columns*D == target) // one of these can be true
+				current-column == target || current+column == target) // one of these can be true
 			{
 				*(current+1) = 1;
 			} // end if				
@@ -109,7 +109,7 @@ static void search4way(uint *current , uint steps)															// search4way
 			*(current+steps+1) += *(temp+steps);
 		} // end if
 
-		temp = current-columns*D;
+		temp = current-column;
 		if(*temp <= steps)
 		{
 			if(*(temp+steps) == UINT_MAX)
@@ -117,7 +117,7 @@ static void search4way(uint *current , uint steps)															// search4way
 			*(current+steps+1) += *(temp+steps);
 		} // end if
 
-		temp = current+columns*D;
+		temp = current+column;
 		if(*temp <= steps)
 		{
 			if(*(temp+steps) == UINT_MAX)
@@ -128,7 +128,7 @@ static void search4way(uint *current , uint steps)															// search4way
 	else
 	{
 		if(current-D == target || current+D == target || // there is only 1 target so only
-			current-columns*D == target || current+columns*D == target) // one of these can be true
+			current-column == target || current+column == target) // one of these can be true
 		{
 			*(current+1) = 1;
 		} // end if				
